@@ -3,11 +3,13 @@ const router = express.Router();
 const wrapAsync = require("../middlewares/wrapAsync");
 const { authorization } = require("../middlewares/authorization");
 const chatController = require("../controllers/chat");
+const upload = require("../config/multer");
 
 router.post("/", authorization, wrapAsync(chatController.postChat));
 router.get("/", authorization, wrapAsync(chatController.getChat));
 
-router.post("/group", authorization, wrapAsync(chatController.createGroup));
+router.post("/group", authorization, upload.single("groupImage"), wrapAsync(chatController.createGroup));
+router.post("/updateGroupImage", authorization, upload.single("groupImage"), wrapAsync(chatController.updateGroupImage));
 router.delete(
 	"/deleteGroup/:chatId",
 	authorization,

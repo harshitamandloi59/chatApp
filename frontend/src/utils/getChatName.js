@@ -11,9 +11,9 @@ const getChatName = (chat, authUserId) => {
 };
 
 export const getChatImage = (chat, authUserId) => {
-	// For group chats, return group logo
+	// For group chats, return group image if available, otherwise group logo
 	if (chat?.chatName !== "Messenger") {
-		return GroupLogo;
+		return chat?.groupImage ? `${import.meta.env.VITE_BACKEND_URL}${chat.groupImage}` : GroupLogo;
 	}
 	
 	// For individual chats, return the other user's image with backend URL

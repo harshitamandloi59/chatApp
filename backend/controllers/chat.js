@@ -58,25 +58,45 @@ const getChat = async (req, res) => {
 	return res.status(200).json({ data: chat });
 };
 const createGroup = async (req, res) => {
+	console.log("🟢 CREATE GROUP HIT");
+	console.log("BODY =", req.body);
+	console.log("FILE =", req.file);
+
 	if (!req.body.users || !req.body.name) {
-		return res.status(200).json({ message: "users and name not provide" });
+		return res.status(400).json({ message: "users and name not provide" });
 	}
-	const users = req.body.users;
+	
+	let users;
+	try {
+		users = typeof req.body.users === 'string' ? JSON.parse(req.body.users) : req.body.users;
+	} catch (error) {
+		return res.status(400).json({ message: "Invalid users format" });
+	}
+	
 	if (users.length < 2) {
-		return res
-			.status(200)
-			.json({ message: "min 2 users required for group" });
+		return res.status(400).json({ message: "min 2 users required for group" });
 	}
+	
 	users.push(req.user._id);
+	
+	// Handle group image
+	let groupImagePath = null;
+	if (req.file) {
+		groupImagePath = `/uploads/${req.file.filename}`;
+	}
+	
 	const groupChat = await Chat.create({
 		chatName: req.body.name,
 		isGroupChat: true,
 		users: users,
 		groupAdmin: req.user._id,
+		groupImage: groupImagePath,
 	});
+	
 	const groups = await Chat.findOne({ _id: groupChat._id })
 		.populate("users", "-password")
 		.populate("groupAdmin", "-password");
+		
 	res.status(200).json({ data: groups });
 };
 const deleteGroup = async (req, res) => {
@@ -144,6 +164,52 @@ const addToGroup = async (req, res) => {
 	}
 };
 
+const updateGroupImage = async (req, res) => {
+	console.log("🟢 UPDATE GROUP IMAGE HIT");
+	console.log("BODY =", req.body);
+	console.log("FILE =", req.file);
+
+	const { chatId } = req.body;
+	
+	if (!chatId) {
+		return res.status(400).json({ message: "chatId not provided" });
+	}
+
+	if (!req.file) {
+		return res.status(400).json({ message: "No image file provided" });
+	}
+
+	// Check if user is admin of the group
+	const chat = await Chat.findById(chatId);
+	if (!chat) {
+		return res.status(404).json({ message: "Chat not found" });
+	}
+
+	if (chat.groupAdmin.toString() !== req.user._id.toString()) {
+		return res.status(403).json({ message: "Only group admin can update group image" });
+	}
+
+	// Update group image
+	const groupImagePath = `/uploads/${req.file.filename}`;
+	
+	const updatedChat = await Chat.findByIdAndUpdate(
+		chatId,
+		{ groupImage: groupImagePath },
+		{ new: true }
+	)
+		.populate("users", "-password")
+		.populate("groupAdmin", "-password");
+
+	if (!updatedChat) {
+		return res.status(404).json({ message: "Chat not found" });
+	}
+
+	res.status(200).json({ 
+		message: "Group image updated successfully",
+		data: updatedChat 
+	});
+};
+
 module.exports = {
 	postChat,
 	getChat,
@@ -152,4 +218,5 @@ module.exports = {
 	renameGroup,
 	removeFromGroup,
 	addToGroup,
+	updateGroupImage,
 };

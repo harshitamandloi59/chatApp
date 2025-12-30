@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import getChatName, { getChatImage, getChatUserName } from "../../utils/getChatName";
 import { SimpleDateAndTime } from "../../utils/formateDateTime";
 import { CiCircleInfo } from "react-icons/ci";
+import { FaCamera } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { RxUpdate } from "react-icons/rx";
 import { addSelectedChat } from "../../redux/slices/myChatSlice";
@@ -11,6 +12,7 @@ import Avatar from "../common/Avatar";
 
 const Overview = () => {
 	const dispatch = useDispatch();
+	const groupImageRef = useRef();
 	const authUserId = useSelector((store) => store?.auth?._id);
 	const selectedChat = useSelector((store) => store?.myChat?.selectedChat);
 	const [changeNameBox, setChangeNameBox] = useState(false);
@@ -58,14 +60,93 @@ const Overview = () => {
 			});
 	};
 
+	const handleGroupImageSelect = (e) => {
+		const file = e.target.files[0];
+		if (file) {
+			// Check if user is admin
+			if (authUserId !== selectedChat?.groupAdmin?._id) {
+				toast.warn("You're not admin");
+				return;
+			}
+
+			// Check file type
+			const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+			
+			if (!allowedTypes.includes(file.type)) {
+				toast.error("Only images (JPEG, PNG, GIF, WEBP) are allowed!");
+				return;
+			}
+
+			// Check file size (5MB limit)
+			if (file.size > 5 * 1024 * 1024) {
+				toast.error("Image size must be less than 5MB!");
+				return;
+			}
+
+			// Upload group image
+			updateGroupImage(file);
+		}
+	};
+
+	const updateGroupImage = async (imageFile) => {
+		dispatch(setLoading(true));
+		const token = localStorage.getItem("token");
+		const formData = new FormData();
+		
+		formData.append("chatId", selectedChat?._id);
+		formData.append("groupImage", imageFile);
+
+		try {
+			const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/chat/updateGroupImage`, {
+				method: "POST",
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+				body: formData,
+			});
+
+			const json = await response.json();
+			
+			if (response.ok) {
+				dispatch(addSelectedChat(json?.data));
+				toast.success("Group image updated successfully!");
+			} else {
+				throw new Error(json.message || "Failed to update group image");
+			}
+		} catch (err) {
+			console.log(err);
+			toast.error(err.message || "Failed to update group image");
+		} finally {
+			dispatch(setLoading(false));
+		}
+	};
+
 	return (
 		<div className="flex flex-col gap-2 text-white p-4">
 			<div className="flex flex-col items-center justify-center gap-2 mb-3 mt-3">
-				<Avatar
-					src={getChatImage(selectedChat, authUserId)}
-					name={getChatUserName(selectedChat, authUserId)}
-					size="w-16 h-16"
-				/>
+				<div className="relative">
+					<Avatar
+						src={getChatImage(selectedChat, authUserId)}
+						name={getChatUserName(selectedChat, authUserId)}
+						size="w-16 h-16"
+					/>
+					{selectedChat?.isGroupChat && authUserId === selectedChat?.groupAdmin?._id && (
+						<button
+							onClick={() => groupImageRef.current?.click()}
+							className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center transition-colors"
+							title="Change group photo"
+						>
+							<FaCamera className="text-white text-xs" />
+						</button>
+					)}
+					<input
+						ref={groupImageRef}
+						type="file"
+						accept="image/*"
+						onChange={handleGroupImageSelect}
+						className="hidden"
+					/>
+				</div>
 				<div className="text-center leading-5 font-semibold text-lg flex items-center gap-1">
 					<h1>{getChatName(selectedChat, authUserId)}</h1>
 					{selectedChat?.isGroupChat && (

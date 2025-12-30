@@ -7,7 +7,7 @@ import {
 	setLoading,
 } from "../../redux/slices/conditionSlice";
 import { MdOutlineClose } from "react-icons/md";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaCamera } from "react-icons/fa";
 import ChatShimmer from "../loading/ChatShimmer";
 import { handleScrollEnd } from "../../utils/handleScrollTop";
 import { toast } from "react-toastify";
@@ -18,12 +18,14 @@ import Avatar from "../common/Avatar";
 
 const GroupChatBox = () => {
 	const groupUser = useRef("");
+	const groupImageRef = useRef("");
 	const dispatch = useDispatch();
 	const isChatLoading = useSelector(
 		(store) => store?.condition?.isChatLoading
 	);
 	const authUserId = useSelector((store) => store?.auth?._id);
 	const [isGroupName, setGroupName] = useState(""); // input text
+	const [groupImage, setGroupImage] = useState(null); // group profile image
 	const [users, setUsers] = useState([]); // all users
 	const [inputUserName, setInputUserName] = useState(""); // input text
 	const [selectedUsers, setSelectedUsers] = useState([]); // user search results
@@ -94,6 +96,28 @@ const GroupChatBox = () => {
 		);
 	};
 
+	const handleGroupImageSelect = (e) => {
+		const file = e.target.files[0];
+		if (file) {
+			// Check file type
+			const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+			
+			if (!allowedTypes.includes(file.type)) {
+				toast.error("Only images (JPEG, PNG, GIF, WEBP) are allowed!");
+				return;
+			}
+
+			// Check file size (5MB limit)
+			if (file.size > 5 * 1024 * 1024) {
+				toast.error("Image size must be less than 5MB!");
+				return;
+			}
+
+			setGroupImage(file);
+			toast.success("Group image selected!");
+		}
+	};
+
 	const handleCreateGroupChat = async () => {
 		if (isGroupUsers.length < 2) {
 			toast.warn("Please select atleast 2 users");
@@ -104,32 +128,42 @@ const GroupChatBox = () => {
 		}
 		dispatch(setGroupChatBox());
 		dispatch(setLoading(true));
+		
 		const token = localStorage.getItem("token");
-		fetch(`${import.meta.env.VITE_BACKEND_URL}/api/chat/group`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${token}`,
-			},
-			body: JSON.stringify({
-				name: isGroupName.trim(),
-				users: isGroupUsers,
-			}),
-		})
-			.then((res) => res.json())
-			.then((json) => {
+		const formData = new FormData();
+		
+		formData.append("name", isGroupName.trim());
+		formData.append("users", JSON.stringify(isGroupUsers));
+		
+		if (groupImage) {
+			formData.append("groupImage", groupImage);
+		}
+
+		try {
+			const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/chat/group`, {
+				method: "POST",
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+				body: formData,
+			});
+
+			const json = await response.json();
+			
+			if (response.ok) {
 				dispatch(addSelectedChat(json?.data));
 				dispatch(setGroupChatId(json?.data?._id));
 				dispatch(setLoading(false));
 				socket.emit("chat created", json?.data, authUserId);
-				toast.success("Created & Selected chat");
-				// console.log(json);
-			})
-			.catch((err) => {
-				console.log(err);
-				toast.error(err.message);
-				dispatch(setLoading(false));
-			});
+				toast.success("Group created successfully!");
+			} else {
+				throw new Error(json.message || "Failed to create group");
+			}
+		} catch (err) {
+			console.log(err);
+			toast.error(err.message || "Failed to create group");
+			dispatch(setLoading(false));
+		}
 	};
 	return (
 		<div className="flex -m-2 sm:-m-4 flex-col items-center my-6 text-slate-300 min-h-screen w-full fixed top-0 justify-center z-50">
@@ -137,6 +171,32 @@ const GroupChatBox = () => {
 				<h2 className="text-2xl underline underline-offset-8 font-semibold text-slate-100 w-full text-center mb-2">
 					Create a Group
 				</h2>
+				
+				{/* Group Image Selection */}
+				<div className="w-full flex justify-center mb-4">
+					<div className="relative">
+						<Avatar
+							src={groupImage ? URL.createObjectURL(groupImage) : null}
+							name={isGroupName || "Group"}
+							size="w-20 h-20"
+							className="border-2 border-slate-600"
+						/>
+						<button
+							onClick={() => groupImageRef.current?.click()}
+							className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center transition-colors"
+							title="Add group photo"
+						>
+							<FaCamera className="text-white text-sm" />
+						</button>
+						<input
+							ref={groupImageRef}
+							type="file"
+							accept="image/*"
+							onChange={handleGroupImageSelect}
+							className="hidden"
+						/>
+					</div>
+				</div>
 				<div className="w-full py-4 justify-evenly flex flex-wrap items-center gap-3">
 					<div className="w-full flex flex-nowrap items-center justify-center gap-2">
 						<input
