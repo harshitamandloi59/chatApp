@@ -5,6 +5,11 @@ import { checkValidSignUpFrom } from "../utils/validate";
 import { PiEye, PiEyeClosedLight } from "react-icons/pi";
 
 const SignUp = () => {
+	console.log(
+    "import.meta.env.VITE_APP_API_URL",
+    import.meta.env.VITE_APP_API_URL
+  	);
+	
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
 	const [email, setEmail] = useState("");
@@ -17,7 +22,7 @@ const SignUp = () => {
 		// Signup ---
 		toast.loading("Wait until you SignUp");
 		e.target.disabled = true;
-		fetch(`http://localhost:9000/api/auth/signup`, {
+		fetch(`${import.meta.env.VITE_APP_API_URL}/api/auth/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

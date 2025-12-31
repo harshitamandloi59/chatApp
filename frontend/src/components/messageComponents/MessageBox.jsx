@@ -11,10 +11,12 @@ import { addAllMessages } from "../../redux/slices/messageSlice";
 import MessageLoading from "../loading/MessageLoading";
 import { addSelectedChat } from "../../redux/slices/myChatSlice";
 import getChatName, { getChatImage, getChatUserName } from "../../utils/getChatName";
-import ChatDetailsBox from "../chatDetails/ChatDetailsBox";
+// import ChatDetailsBox from "../chatDetails/ChatDetailBox";
+import ChatDetailsBox from "../chatComponents/chatDetails/ChatDetailsBox"
 import { CiMenuKebab } from "react-icons/ci";
 import { toast } from "react-toastify";
 import socket from "../../socket/socket";
+// import Avatar from "../common/Avatar";
 import Avatar from "../common/Avatar";
 
 const MessageBox = ({ chatId }) => {
@@ -35,24 +37,24 @@ const MessageBox = ({ chatId }) => {
 		const getMessage = (chatId) => {
 			dispatch(setMessageLoading(true));
 			const token = localStorage.getItem("token");
-			fetch(`${import.meta.env.VITE_BACKEND_URL}/api/message/${chatId}`, {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
-			})
-				.then((res) => res.json())
-				.then((json) => {
-					dispatch(addAllMessages(json?.data || []));
-					dispatch(setMessageLoading(false));
-					socket.emit("join chat", selectedChat._id);
-				})
-				.catch((err) => {
-					console.log(err);
-					dispatch(setMessageLoading(false));
-					toast.error("Message Loading Failed");
-				});
+			fetch(`${import.meta.env.VITE_APP_API_URL}/api/message/${chatId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((json) => {
+          dispatch(addAllMessages(json?.data || []));
+          dispatch(setMessageLoading(false));
+          socket.emit("join chat", selectedChat._id);
+        })
+        .catch((err) => {
+          console.log(err);
+          dispatch(setMessageLoading(false));
+          toast.error("Message Loading Failed");
+        });
 		};
 		getMessage(chatId);
 	}, [chatId]);

@@ -35,23 +35,23 @@ const GroupChatBox = () => {
 		const getAllUsers = () => {
 			dispatch(setChatLoading(true));
 			const token = localStorage.getItem("token");
-			fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/users`, {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
-			})
-				.then((res) => res.json())
-				.then((json) => {
-					setUsers(json.data || []);
-					setSelectedUsers(json.data || []);
-					dispatch(setChatLoading(false));
-				})
-				.catch((err) => {
-					console.log(err);
-					dispatch(setChatLoading(false));
-				});
+			fetch(`${import.meta.env.VITE_APP_API_URL}/api/user/users`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((json) => {
+          setUsers(json.data || []);
+          setSelectedUsers(json.data || []);
+          dispatch(setChatLoading(false));
+        })
+        .catch((err) => {
+          console.log(err);
+          dispatch(setChatLoading(false));
+        });
 		};
 		getAllUsers();
 	}, []);
@@ -140,13 +140,16 @@ const GroupChatBox = () => {
 		}
 
 		try {
-			const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/chat/group`, {
-				method: "POST",
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-				body: formData,
-			});
+			const response = await fetch(
+        `${import.meta.env.VITE_APP_API_URL}/api/chat/group`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
 			const json = await response.json();
 			
@@ -250,32 +253,35 @@ const GroupChatBox = () => {
 								)}
 								{selectedUsers?.map((user) => {
 									return (
-										<div
-											key={user?._id}
-											className="w-full h-16 border-slate-500 border rounded-lg flex justify-start items-center p-2 font-semibold gap-2 hover:bg-black/50 transition-all cursor-pointer text-white"
-											onClick={() => {
-												addGroupUser(user);
-												setInputUserName("");
-											}}
-										>
-											<Avatar
-												src={user?.image ? `${import.meta.env.VITE_BACKEND_URL}${user?.image}` : null}
-												name={`${user?.firstName} ${user?.lastName}`}
-												size="w-12 h-12"
-											/>
-											<div className="w-full">
-												<span className="line-clamp-1 capitalize">
-													{user?.firstName}{" "}
-													{user?.lastName}
-												</span>
-												<span className="text-xs font-light">
-													{SimpleDateAndTime(
-														user?.createdAt
-													)}
-												</span>
-											</div>
-										</div>
-									);
+                    <div
+                      key={user?._id}
+                      className="w-full h-16 border-slate-500 border rounded-lg flex justify-start items-center p-2 font-semibold gap-2 hover:bg-black/50 transition-all cursor-pointer text-white"
+                      onClick={() => {
+                        addGroupUser(user);
+                        setInputUserName("");
+                      }}
+                    >
+                      <Avatar
+                        src={
+                          user?.image
+                            ? `${import.meta.env.VITE_APP_API_URL}${
+                                user?.image
+                              }`
+                            : null
+                        }
+                        name={`${user?.firstName} ${user?.lastName}`}
+                        size="w-12 h-12"
+                      />
+                      <div className="w-full">
+                        <span className="line-clamp-1 capitalize">
+                          {user?.firstName} {user?.lastName}
+                        </span>
+                        <span className="text-xs font-light">
+                          {SimpleDateAndTime(user?.createdAt)}
+                        </span>
+                      </div>
+                    </div>
+                  );
 								})}
 							</>
 						)}

@@ -1,14 +1,14 @@
 import React, { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import getChatName, { getChatImage, getChatUserName } from "../../utils/getChatName";
-import { SimpleDateAndTime } from "../../utils/formateDateTime";
+import getChatName, { getChatImage, getChatUserName } from "../../../utils/getChatName";
+import { SimpleDateAndTime } from "../../../utils/formateDateTime";
 import { CiCircleInfo } from "react-icons/ci";
 import { FaCamera } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { RxUpdate } from "react-icons/rx";
-import { addSelectedChat } from "../../redux/slices/myChatSlice";
-import { setLoading } from "../../redux/slices/conditionSlice";
-import Avatar from "../common/Avatar";
+import { addSelectedChat } from "../../../redux/slices/myChatSlice";
+import { setLoading } from "../../../redux/slices/conditionSlice";
+import Avatar from "../../common/Avatar";
 
 const Overview = () => {
 	const dispatch = useDispatch();

@@ -7,10 +7,11 @@ import { toast } from "react-toastify";
 import {
 	setChatDetailsBox,
 	setLoading,
-} from "../../redux/slices/conditionSlice";
-import { addAllMessages } from "../../redux/slices/messageSlice";
-import { deleteSelectedChat } from "../../redux/slices/myChatSlice";
-import socket from "../../socket/socket";
+} from "../../../redux/slices/conditionSlice";
+import { addAllMessages } from "../../../redux/slices/messageSlice";
+// import { deleteSelectedChat } from "../../redux/slices/myChatSlice";
+import { deleteSelectedChat } from "../../../redux/slices/myChatSlice";
+import socket from "../../../socket/socket";
 
 const ChatSetting = () => {
 	const dispatch = useDispatch();

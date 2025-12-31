@@ -30,22 +30,22 @@ const Header = () => {
 	const token = localStorage.getItem("token");
 	const getAuthUser = (token) => {
 		dispatch(setLoading(true));
-		fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/profile`, {
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${token}`,
-			},
-		})
-			.then((res) => res.json())
-			.then((json) => {
-				dispatch(addAuth(json.data));
-				dispatch(setLoading(false));
-			})
-			.catch((err) => {
-				console.log(err);
-				dispatch(setLoading(false));
-			});
+		fetch(`${import.meta.env.VITE_APP_API_URL}/api/user/profile`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        dispatch(addAuth(json.data));
+        dispatch(setLoading(false));
+      })
+      .catch((err) => {
+        console.log(err);
+        dispatch(setLoading(false));
+      });
 	};
 	useEffect(() => {
 		if (token) {
@@ -116,101 +116,101 @@ const Header = () => {
 		};
 	}, [isHeaderMenu]);
 	return (
-		<div
-			id="header"
-			className="w-full h-16 fixed top-0 z-50 md:h-20 shadow-gray-950 shadow-inner flex justify-between items-center p-4 font-semibold bg-slate-800 text-white"
-		>
-			<div className="flex items-center justify-start gap-2">
-				<Link to={"/"}>
-					<img
-						src={Logo}
-						alt="ChatApp"
-						className="h-12 w-12 rounded-tr-full rounded-tl-full rounded-br-full"
-					/>
-				</Link>
-				<Link to={"/"}>
-					<span>ChatApp</span>
-				</Link>
-			</div>
+    <div
+      id="header"
+      className="w-full h-16 fixed top-0 z-50 md:h-20 shadow-gray-950 shadow-inner flex justify-between items-center p-4 font-semibold bg-slate-800 text-white"
+    >
+      <div className="flex items-center justify-start gap-2">
+        <Link to={"/"}>
+          <img
+            src={Logo}
+            alt="ChatApp"
+            className="h-12 w-12 rounded-tr-full rounded-tl-full rounded-br-full"
+          />
+        </Link>
+        <Link to={"/"}>
+          <span>ChatApp</span>
+        </Link>
+      </div>
 
-			{user ? (
-				<div className="flex flex-nowrap items-center">
-					<span
-						className={`whitespace-nowrap ml-2 flex items-center justify-center relative mr-1.5 cursor-pointer ${
-							newMessageRecieved.length > 0
-								? "animate-bounce"
-								: "animate-none"
-						}`}
-						title={`You have ${newMessageRecieved.length} new notifications`}
-						onClick={() => dispatch(setNotificationBox(true))}
-					>
-						<MdNotificationsActive fontSize={25} />
-						<span className="font-semibold text-xs absolute top-0 right-0 translate-x-1.5 -translate-y-1.5">
-							{newMessageRecieved.length}
-						</span>
-					</span>
-					<span className="whitespace-nowrap ml-2">
-						Hi, {user.firstName}
-					</span>
-					<div
-						ref={headerUserBox}
-						onClick={(e) => {
-							e.preventDefault();
-							dispatch(setHeaderMenu(!isHeaderMenu));
-						}}
-						className="flex flex-nowrap transition-all items-center ml-3  border border-slate-400 rounded-full bg-gradient-to-tr to-slate-800 text-black via-white  from-slate-800 hover:bg-gradient-to-br shadow-sm  cursor-pointer"
-					>
-						<Avatar
-							src={user.image ? `${import.meta.env.VITE_BACKEND_URL}${user.image}` : null}
-							name={`${user.firstName} ${user.lastName}`}
-							size="w-10 h-10"
-						/>
-						<span className="m-2">
-							{isHeaderMenu ? (
-								<MdKeyboardArrowDown fontSize={20} />
-							) : (
-								<MdKeyboardArrowUp fontSize={20} />
-							)}
-						</span>
-					</div>
-					{isHeaderMenu && (
-						<div
-							ref={headerMenuBox}
-							className="border border-slate-500 text-white w-40 h-24 py-2 flex flex-col justify-center rounded-md items-center gap-1 absolute top-16 right-4 z-40 bg-slate-700"
-						>
-							<div
-								onClick={() => {
-									dispatch(setHeaderMenu(false));
-									dispatch(setProfileDetail());
-								}}
-								className="flex flex-nowrap items-center w-full h-fit cursor-pointer justify-center hover:bg-slate-400 hover:text-black p-1"
-							>
-								<div className="flex items-center justify-between w-2/4">
-									<PiUserCircleLight fontSize={23} />
-									<span>Profile</span>
-								</div>
-							</div>
-							<div
-								className="flex flex-nowrap items-center w-full h-fit cursor-pointer justify-center hover:bg-slate-400 hover:text-black p-1"
-								onClick={handleLogout}
-							>
-								<div className="flex items-center justify-between w-2/4">
-									<IoLogOutOutline fontSize={21} />
-									<span>Logout</span>
-								</div>
-							</div>
-						</div>
-					)}
-				</div>
-			) : (
-				<Link to={"/signin"}>
-					<button className="py-2 px-4 border border-slate-400 rounded-full bg-gradient-to-tr to-slate-800 text-black via-white  from-slate-800 hover:bg-gradient-to-br shadow-sm hover:shadow-white">
-						SignIn
-					</button>
-				</Link>
-			)}
-		</div>
-	);
+      {user ? (
+        <div className="flex flex-nowrap items-center">
+          <span
+            className={`whitespace-nowrap ml-2 flex items-center justify-center relative mr-1.5 cursor-pointer ${
+              newMessageRecieved.length > 0 ? "animate-bounce" : "animate-none"
+            }`}
+            title={`You have ${newMessageRecieved.length} new notifications`}
+            onClick={() => dispatch(setNotificationBox(true))}
+          >
+            <MdNotificationsActive fontSize={25} />
+            <span className="font-semibold text-xs absolute top-0 right-0 translate-x-1.5 -translate-y-1.5">
+              {newMessageRecieved.length}
+            </span>
+          </span>
+          <span className="whitespace-nowrap ml-2">Hi, {user.firstName}</span>
+          <div
+            ref={headerUserBox}
+            onClick={(e) => {
+              e.preventDefault();
+              dispatch(setHeaderMenu(!isHeaderMenu));
+            }}
+            className="flex flex-nowrap transition-all items-center ml-3  border border-slate-400 rounded-full bg-gradient-to-tr to-slate-800 text-black via-white  from-slate-800 hover:bg-gradient-to-br shadow-sm  cursor-pointer"
+          >
+            <Avatar
+              src={
+                user.image
+                  ? `${import.meta.env.VITE_APP_API_URL}${user.image}`
+                  : null
+              }
+              name={`${user.firstName} ${user.lastName}`}
+              size="w-10 h-10"
+            />
+            <span className="m-2">
+              {isHeaderMenu ? (
+                <MdKeyboardArrowDown fontSize={20} />
+              ) : (
+                <MdKeyboardArrowUp fontSize={20} />
+              )}
+            </span>
+          </div>
+          {isHeaderMenu && (
+            <div
+              ref={headerMenuBox}
+              className="border border-slate-500 text-white w-40 h-24 py-2 flex flex-col justify-center rounded-md items-center gap-1 absolute top-16 right-4 z-40 bg-slate-700"
+            >
+              <div
+                onClick={() => {
+                  dispatch(setHeaderMenu(false));
+                  dispatch(setProfileDetail());
+                }}
+                className="flex flex-nowrap items-center w-full h-fit cursor-pointer justify-center hover:bg-slate-400 hover:text-black p-1"
+              >
+                <div className="flex items-center justify-between w-2/4">
+                  <PiUserCircleLight fontSize={23} />
+                  <span>Profile</span>
+                </div>
+              </div>
+              <div
+                className="flex flex-nowrap items-center w-full h-fit cursor-pointer justify-center hover:bg-slate-400 hover:text-black p-1"
+                onClick={handleLogout}
+              >
+                <div className="flex items-center justify-between w-2/4">
+                  <IoLogOutOutline fontSize={21} />
+                  <span>Logout</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        <Link to={"/signin"}>
+          <button className="py-2 px-4 border border-slate-400 rounded-full bg-gradient-to-tr to-slate-800 text-black via-white  from-slate-800 hover:bg-gradient-to-br shadow-sm hover:shadow-white">
+            SignIn
+          </button>
+        </Link>
+      )}
+    </div>
+  );
 };
 
 export default Header;

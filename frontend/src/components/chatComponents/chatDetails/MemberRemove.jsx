@@ -8,9 +8,11 @@ import {
 import { VscError } from "react-icons/vsc";
 import { CiCircleInfo } from "react-icons/ci";
 import { toast } from "react-toastify";
-import Avatar from "../common/Avatar";
-import { addSelectedChat } from "../../redux/slices/myChatSlice";
-import { setLoading } from "../../redux/slices/conditionSlice";
+import Avatar from "../../common/Avatar";
+// import { addSelectedChat } from "../../redux/slices/myChatSlice";
+import { addSelectedChat } from "../../../redux/slices/myChatSlice";
+// import { setLoading } from "../../redux/slices/conditionSlice";
+import { setLoading } from "../../../redux/slices/conditionSlice";
 
 const MemberRemove = ({ setMemberAddBox }) => {
 	const dispatch = useDispatch();

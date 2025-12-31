@@ -28,22 +28,22 @@ const MyChat = () => {
         const getMyChat = () => {
             dispatch(setChatLoading(true));
             const token = localStorage.getItem("token");
-            fetch(`${import.meta.env.VITE_BACKEND_URL}/api/chat`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
+            fetch(`${import.meta.env.VITE_APP_API_URL}/api/chat`, {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
             })
-                .then((res) => res.json())
-                .then((json) => {
-                    dispatch(addMyChat(json?.data || []));
-                    dispatch(setChatLoading(false));
-                })
-                .catch((err) => {
-                    console.log(err);
-                    dispatch(setChatLoading(false));
-                });
+              .then((res) => res.json())
+              .then((json) => {
+                dispatch(addMyChat(json?.data || []));
+                dispatch(setChatLoading(false));
+              })
+              .catch((err) => {
+                console.log(err);
+                dispatch(setChatLoading(false));
+              });
         };
         getMyChat();
     }, [newMessageId, isGroupChatId]);

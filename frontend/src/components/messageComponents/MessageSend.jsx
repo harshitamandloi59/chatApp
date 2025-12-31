@@ -245,7 +245,7 @@ const handleMediaBox = (e) => {
 
  
 const handleSendMessage = async () => {
-  console.log("BACKEND URL =", import.meta.env.VITE_BACKEND_URL);
+  console.log("BACKEND URL =", import.meta.env.VITE_APP_API_URL);
   console.log("SEND CLICKED");
 
   if (!newMessage?.trim() && !selectedFile) return;
@@ -281,7 +281,7 @@ const handleSendMessage = async () => {
   mediaFile.current.value = "";
 
   try {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/message`, {
+    const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/api/message`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
