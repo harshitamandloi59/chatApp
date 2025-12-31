@@ -32,13 +32,14 @@ const chatRouter = require("./routes/chat");
 const messageRouter = require("./routes/message");
 
 // Connect to Database
-main()
-	.then(() => console.log("Database Connection established"))
-	.catch((err) => console.log(err));
+mongoose
+  .connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.log("MongoDB connection error:", err));
 
-async function main() {
-	await mongoose.connect(process.env.MONGODB_URI);
-}
 
 // Root route
 app.get("/", (req, res) => {
@@ -67,6 +68,7 @@ app.use((err, req, res, next) => {
 
 // Start the server
 const server = app.listen(PORT, async () => {
+	
 	console.log(`Server listening on ${PORT}`);
 });
 
