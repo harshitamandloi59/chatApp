@@ -214,10 +214,8 @@ const MessageSend = ({ chatId }) => {
 
   // Media Box Control
 const handleMediaBox = (e) => {
-  console.log("FILE CHANGE TRIGGERED");
 
   const file = e.target.files[0];
-  console.log("FILE =>", file);
 
   if (file) {
     // Check file type
@@ -245,13 +243,10 @@ const handleMediaBox = (e) => {
 
  
 const handleSendMessage = async () => {
-  console.log("BACKEND URL =", import.meta.env.VITE_APP_API_URL);
-  console.log("SEND CLICKED");
 
   if (!newMessage?.trim() && !selectedFile) return;
 
   if (!chatId) {
-    console.log("❌ chatId missing");
     return;
   }
 
@@ -274,7 +269,6 @@ const handleSendMessage = async () => {
     formData.append("file", selectedFile);
   }
 
-  console.log("FORM DATA FILE =", selectedFile);
 
   setMessage("");
   setSelectedFile(null);
@@ -290,13 +284,11 @@ const handleSendMessage = async () => {
     });
 
     const json = await res.json();
-    console.log("SERVER RESPONSE =", json);
 
     dispatch(addNewMessageId(json?.data?._id));
     dispatch(addNewMessage(json?.data));
     socket.emit("new message", json.data);
   } catch (err) {
-    console.log("SEND ERROR =", err);
     toast.error("Message Sending Failed");
   } finally {
     dispatch(setSendLoading(false));
@@ -372,7 +364,6 @@ const handleSendMessage = async () => {
           size={22}
           className="cursor-pointer active:scale-75 hover:text-green-400"
           onClick={() => {
-            console.log("ICON CLICKED");
             mediaFile.current.click();
           }}
         />

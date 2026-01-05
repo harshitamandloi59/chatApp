@@ -78,7 +78,6 @@ const ProfileDetail = () => {
 				toast.error(result.message || "Failed to update profile");
 			}
 		} catch (error) {
-			console.error("Update error:", error);
 			toast.error("Failed to update profile");
 		} finally {
 			setIsUpdating(false);

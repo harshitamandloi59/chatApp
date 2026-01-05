@@ -51,7 +51,6 @@ const MessageBox = ({ chatId }) => {
           socket.emit("join chat", selectedChat._id);
         })
         .catch((err) => {
-          console.log(err);
           dispatch(setMessageLoading(false));
           toast.error("Message Loading Failed");
         });

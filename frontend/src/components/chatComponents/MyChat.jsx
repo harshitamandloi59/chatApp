@@ -41,7 +41,6 @@ const MyChat = () => {
                 dispatch(setChatLoading(false));
               })
               .catch((err) => {
-                console.log(err);
                 dispatch(setChatLoading(false));
               });
         };

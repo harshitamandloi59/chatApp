@@ -54,6 +54,17 @@ const messageSchema = mongoose.Schema(
       ref: "Chat",
       required: true,
     },
+
+    seenBy: [{
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+      seenAt: {
+        type: Date,
+        default: Date.now,
+      }
+    }],
   },
   {
     timestamps: true,

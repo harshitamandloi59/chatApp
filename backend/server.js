@@ -92,7 +92,6 @@ io.on("connection", (socket) => {
 		if (!socket.hasJoined) {
 			socket.join(userId);
 			socket.hasJoined = true;
-			console.log("User joined:", userId);
 			socket.emit("connected");
 		}
 	};
@@ -100,7 +99,6 @@ io.on("connection", (socket) => {
 		let chat = newMessageReceived?.chat;
 		chat?.users.forEach((user) => {
 			if (user._id === newMessageReceived.sender._id) return;
-			console.log("Message received by:", user._id);
 			socket.in(user._id).emit("message received", newMessageReceived);
 		});
 	};
@@ -109,15 +107,12 @@ io.on("connection", (socket) => {
 	const joinChatHandler = (room) => {
 		if (socket.currentRoom) {
 			if (socket.currentRoom === room) {
-				console.log(`User already in Room: ${room}`);
 				return;
 			}
 			socket.leave(socket.currentRoom);
-			console.log(`User left Room: ${socket.currentRoom}`);
 		}
 		socket.join(room);
 		socket.currentRoom = room;
-		console.log("User joined Room:", room);
 	};
 	const typingHandler = (room) => {
 		socket.in(room).emit("typing");
@@ -133,19 +128,20 @@ io.on("connection", (socket) => {
 	const deleteChatHandler = (chat, authUserId) => {
 		chat.users.forEach((user) => {
 			if (authUserId === user._id) return;
-			console.log("Chat delete:", user._id);
 			socket.in(user._id).emit("delete chat", chat._id);
 		});
 	};
 	const chatCreateChatHandler = (chat, authUserId) => {
 		chat.users.forEach((user) => {
 			if (authUserId === user._id) return;
-			console.log("Create chat:", user._id);
 			socket.in(user._id).emit("chat created", chat);
 		});
 	};
 	const messageDeletedHandler = ({ messageId, chatId }) => {
 		socket.in(chatId).emit("message deleted", { messageId, chatId });
+	};
+	const messageSeenHandler = ({ messageIds, chatId, userId }) => {
+		socket.in(chatId).emit("messages seen", { messageIds, userId });
 	};
 
 	socket.on("setup", setupHandler);
@@ -157,6 +153,7 @@ io.on("connection", (socket) => {
 	socket.on("delete chat", deleteChatHandler);
 	socket.on("chat created", chatCreateChatHandler);
 	socket.on("message deleted", messageDeletedHandler);
+	socket.on("messages seen", messageSeenHandler);
 
 	socket.on("disconnect", () => {
 		console.log("User disconnected:", socket.id);
@@ -169,5 +166,6 @@ io.on("connection", (socket) => {
 		socket.off("delete chat", deleteChatHandler);
 		socket.off("chat created", chatCreateChatHandler);
 		socket.off("message deleted", messageDeletedHandler);
+		socket.off("messages seen", messageSeenHandler);
 	});
 });

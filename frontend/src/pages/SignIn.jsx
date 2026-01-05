@@ -42,7 +42,6 @@ const SignIn = () => {
         }
       })
       .catch((error) => {
-        console.error("Error:", error);
         setLoad("");
         toast.dismiss();
         toast.error("Error : " + error.code);

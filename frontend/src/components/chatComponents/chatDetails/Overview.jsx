@@ -54,7 +54,6 @@ const Overview = () => {
 				toast.success("Group name changed");
 			})
 			.catch((err) => {
-				console.log(err);
 				toast.error(err.message);
 				dispatch(setLoading(false));
 			});
@@ -114,7 +113,6 @@ const Overview = () => {
 				throw new Error(json.message || "Failed to update group image");
 			}
 		} catch (err) {
-			console.log(err);
 			toast.error(err.message || "Failed to update group image");
 		} finally {
 			dispatch(setLoading(false));

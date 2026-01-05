@@ -49,7 +49,6 @@ const MemberRemove = ({ setMemberAddBox }) => {
 				dispatch(setLoading(false));
 			})
 			.catch((err) => {
-				console.log(err);
 				toast.error(err.message);
 				dispatch(setLoading(false));
 			});

@@ -45,9 +45,6 @@ const Chat = require("../models/chat");
 const Message = require("../models/message");
 
 const createMessage = async (req, res) => {
-  console.log("🟢 CONTROLLER HIT");
-  console.log("BODY =", req.body);
-  console.log("FILE =", req.file);
 
   const { chatId, message } = req.body;
 
@@ -91,14 +88,13 @@ const allMessage = async (req, res) => {
 
   const messages = await Message.find({ chat: chatId })
     .populate("sender", "-password")
-    .populate("chat");
+    .populate("chat")
+    .populate("seenBy.user", "firstName lastName");
 
   return res.status(200).json({ data: messages });
 };
 
 const clearChat = async (req, res) => {
-  console.log("🟢 CLEAR CHAT HIT");
-  console.log("CHAT ID =", req.params.chatId);
   
   try {
     const chatId = req.params.chatId;
@@ -108,22 +104,17 @@ const clearChat = async (req, res) => {
     }
     
     const result = await Message.deleteMany({ chat: chatId });
-    console.log("DELETED MESSAGES =", result.deletedCount);
     
     return res.status(200).json({ 
       message: "success",
       deletedCount: result.deletedCount 
     });
   } catch (error) {
-    console.error("CLEAR CHAT ERROR =", error);
     return res.status(500).json({ message: "Failed to clear chat" });
   }
 };
 
 const deleteMessage = async (req, res) => {
-  console.log("🟢 DELETE MESSAGE HIT");
-  console.log("REQUEST BODY =", req.body);
-  console.log("USER ID =", req.user._id);
   
   try {
     const { messageId } = req.body;
@@ -145,7 +136,6 @@ const deleteMessage = async (req, res) => {
     
     // Delete the message
     await Message.findByIdAndDelete(messageId);
-    console.log("MESSAGE DELETED =", messageId);
     
     return res.status(200).json({ 
       message: "success",
@@ -157,4 +147,44 @@ const deleteMessage = async (req, res) => {
   }
 };
 
-module.exports = { createMessage, allMessage, clearChat, deleteMessage };
+const markMessageSeen = async (req, res) => {
+  console.log("🟢 MARK MESSAGE SEEN HIT");
+  console.log("REQUEST BODY =", req.body);
+  console.log("USER ID =", req.user._id);
+  
+  try {
+    const { messageIds } = req.body; // Array of message IDs
+    
+    if (!messageIds || !Array.isArray(messageIds)) {
+      return res.status(400).json({ message: "Message IDs array is required" });
+    }
+    
+    // Update multiple messages to mark as seen by current user
+    const result = await Message.updateMany(
+      { 
+        _id: { $in: messageIds },
+        "seenBy.user": { $ne: req.user._id } // Only if not already seen by this user
+      },
+      { 
+        $push: { 
+          seenBy: { 
+            user: req.user._id, 
+            seenAt: new Date() 
+          } 
+        } 
+      }
+    );
+    
+    console.log("MESSAGES MARKED AS SEEN =", result.modifiedCount);
+    
+    return res.status(200).json({ 
+      message: "success",
+      markedCount: result.modifiedCount
+    });
+  } catch (error) {
+    console.error("MARK MESSAGE SEEN ERROR =", error);
+    return res.status(500).json({ message: "Failed to mark messages as seen" });
+  }
+};
+
+module.exports = { createMessage, allMessage, clearChat, deleteMessage, markMessageSeen };

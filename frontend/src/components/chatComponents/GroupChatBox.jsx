@@ -49,7 +49,6 @@ const GroupChatBox = () => {
           dispatch(setChatLoading(false));
         })
         .catch((err) => {
-          console.log(err);
           dispatch(setChatLoading(false));
         });
 		};
@@ -163,7 +162,6 @@ const GroupChatBox = () => {
 				throw new Error(json.message || "Failed to create group");
 			}
 		} catch (err) {
-			console.log(err);
 			toast.error(err.message || "Failed to create group");
 			dispatch(setLoading(false));
 		}

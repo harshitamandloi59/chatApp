@@ -5,10 +5,7 @@ import { checkValidSignUpFrom } from "../utils/validate";
 import { PiEye, PiEyeClosedLight } from "react-icons/pi";
 
 const SignUp = () => {
-	console.log(
-    "import.meta.env.VITE_APP_API_URL",
-    import.meta.env.VITE_APP_API_URL
-  	);
+	
 	
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
@@ -47,7 +44,6 @@ const SignUp = () => {
         }
       })
       .catch((error) => {
-        console.error("Error:", error);
         setLoad("");
         toast.dismiss();
         toast.error("Error : " + error.code);

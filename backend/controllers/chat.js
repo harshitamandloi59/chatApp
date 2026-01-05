@@ -58,9 +58,6 @@ const getChat = async (req, res) => {
 	return res.status(200).json({ data: chat });
 };
 const createGroup = async (req, res) => {
-	console.log("🟢 CREATE GROUP HIT");
-	console.log("BODY =", req.body);
-	console.log("FILE =", req.file);
 
 	if (!req.body.users || !req.body.name) {
 		return res.status(400).json({ message: "users and name not provide" });
@@ -100,9 +97,6 @@ const createGroup = async (req, res) => {
 	res.status(200).json({ data: groups });
 };
 const deleteGroup = async (req, res) => {
-	console.log("🟢 DELETE GROUP HIT");
-	console.log("CHAT ID =", req.params.chatId);
-	console.log("USER ID =", req.user._id);
 	
 	try {
 		const chatId = req.params.chatId;
@@ -129,11 +123,9 @@ const deleteGroup = async (req, res) => {
 		
 		// Delete all messages first
 		const messageResult = await Message.deleteMany({ chat: chatId });
-		console.log("DELETED MESSAGES =", messageResult.deletedCount);
 		
 		// Delete the chat
 		const chatResult = await Chat.deleteOne({ _id: chatId });
-		console.log("DELETED CHAT =", chatResult.deletedCount);
 		
 		return res.status(200).json({ 
 			message: "success",
@@ -141,7 +133,6 @@ const deleteGroup = async (req, res) => {
 			deletedChat: chatResult.deletedCount
 		});
 	} catch (error) {
-		console.error("DELETE GROUP ERROR =", error);
 		return res.status(500).json({ message: "Failed to delete chat" });
 	}
 };
@@ -205,9 +196,6 @@ const addToGroup = async (req, res) => {
 };
 
 const updateGroupImage = async (req, res) => {
-	console.log("🟢 UPDATE GROUP IMAGE HIT");
-	console.log("BODY =", req.body);
-	console.log("FILE =", req.file);
 
 	const { chatId } = req.body;
 	

@@ -43,7 +43,6 @@ const Header = () => {
         dispatch(setLoading(false));
       })
       .catch((err) => {
-        console.log(err);
         dispatch(setLoading(false));
       });
 	};

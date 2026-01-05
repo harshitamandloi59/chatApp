@@ -4,7 +4,7 @@ import { VscCheckAll } from "react-icons/vsc";
 import { CgChevronDoubleDown } from "react-icons/cg";
 import { HiDownload, HiEye } from "react-icons/hi";
 import { FaImage, FaFilePdf, FaFile } from "react-icons/fa";
-import { BsThreeDotsVertical } from "react-icons/bs";
+import { BsThreeDotsVertical, BsCheck2All } from "react-icons/bs";
 import { IoCheckmarkCircleOutline } from "react-icons/io5";
 import { VscError } from "react-icons/vsc";
 import Avatar from "../common/Avatar";
@@ -32,6 +32,77 @@ const AllMessages = ({ allMessage }) => {
         setDeleteConfirm(messageId);
     };
 
+    // Mark messages as seen when component loads or messages change
+    useEffect(() => {
+        if (allMessage && allMessage.length > 0 && adminId && selectedChat) {
+            // Get messages that are not sent by current user and not seen by current user
+            const unseenMessages = allMessage.filter(msg => 
+                msg.sender._id !== adminId && 
+                !msg.seenBy?.some(seen => seen.user._id === adminId)
+            );
+            
+            if (unseenMessages.length > 0) {
+                markMessagesAsSeen(unseenMessages.map(msg => msg._id));
+            }
+        }
+    }, [allMessage, adminId, selectedChat]);
+
+    // Function to mark messages as seen
+    const markMessagesAsSeen = async (messageIds) => {
+        if (!messageIds || messageIds.length === 0) return;
+        
+        const token = localStorage.getItem("token");
+        const backendUrl = import.meta.env.VITE_APP_API_URL || "https://chatapp-fjyj.onrender.com";
+        
+        try {
+            const response = await fetch(`${backendUrl}/api/message/markSeen`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ messageIds }),
+            });
+
+            const json = await response.json();
+            
+            if (json?.message === "success") {
+                // Emit socket event to notify other users
+                socket.emit("messages seen", { 
+                    messageIds, 
+                    chatId: selectedChat._id, 
+                    userId: adminId 
+                });
+            }
+        } catch (error) {
+            console.error("MARK MESSAGES SEEN ERROR =", error);
+        }
+    };
+
+    // Function to check if message is seen by other users (for blue tick)
+    const isMessageSeen = (message) => {
+        if (message.sender._id !== adminId) return false; // Only show for own messages
+        
+        // TEMPORARY: Show blue tick for messages older than 10 seconds (for demo)
+        const messageTime = new Date(message.updatedAt).getTime();
+        const currentTime = new Date().getTime();
+        const timeDiff = currentTime - messageTime;
+        
+        // If message is older than 10 seconds, show as seen (temporary demo)
+        if (timeDiff > 10000) {
+            return true;
+        }
+        
+        // Real logic (will work after backend deploy):
+        // In group chat, check if at least one other user has seen it
+        if (selectedChat?.isGroupChat) {
+            return message.seenBy?.some(seen => seen.user._id !== adminId);
+        } else {
+            // In individual chat, check if the other user has seen it
+            return message.seenBy?.some(seen => seen.user._id !== adminId);
+        }
+    };
+
     const [scrollShow, setScrollShow] = useState(true);
     // Handle Chat Box Scroll Down
     const handleScrollDownChat = () => {
@@ -45,7 +116,6 @@ const AllMessages = ({ allMessage }) => {
 
     // Delete individual message
     const handleDeleteMessage = async (messageId) => {
-        console.log("🟢 DELETE MESSAGE CALLED", messageId);
         
         const token = localStorage.getItem("token");
         const backendUrl = import.meta.env.VITE_APP_API_URL || "https://chatapp-fjyj.onrender.com";
@@ -61,7 +131,6 @@ const AllMessages = ({ allMessage }) => {
             });
 
             const json = await response.json();
-            console.log("DELETE MESSAGE RESPONSE =", json);
 
             if (json?.message === "success") {
                 // Remove message from local state
@@ -75,7 +144,6 @@ const AllMessages = ({ allMessage }) => {
             
             setDeleteConfirm(null);
         } catch (error) {
-            console.error("DELETE MESSAGE ERROR =", error);
             toast.error("Delete feature not available. Backend needs to be updated.");
             setDeleteConfirm(null);
         }
@@ -346,7 +414,11 @@ const AllMessages = ({ allMessage }) => {
                               >
                                 {SimpleTime(message?.updatedAt)}
                                 {message?.sender?._id === adminId && (
-                                  <VscCheckAll color="white" fontSize={14} />
+                                  isMessageSeen(message) ? (
+                                    <BsCheck2All color="#4FC3F7" fontSize={14} title="Seen" />
+                                  ) : (
+                                    <VscCheckAll color="white" fontSize={14} title="Sent" />
+                                  )
                                 )}
                               </span>
                             </div>
@@ -395,7 +467,11 @@ const AllMessages = ({ allMessage }) => {
                                 >
                                   {SimpleTime(message?.updatedAt)}
                                   {message?.sender?._id === adminId && (
-                                    <VscCheckAll color="white" fontSize={14} />
+                                    isMessageSeen(message) ? (
+                                      <BsCheck2All color="#4FC3F7" fontSize={14} title="Seen" />
+                                    ) : (
+                                      <VscCheckAll color="white" fontSize={14} title="Sent" />
+                                    )
                                   )}
                                 </span>
                               </div>

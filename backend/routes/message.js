@@ -9,7 +9,6 @@ router.post(
   authorization,
   upload.single("file"),
   (req, res, next) => {
-    console.log("📩 MESSAGE ROUTE HIT");
     next();
   },
   wrapAsync(messageController.createMessage)
@@ -23,6 +22,11 @@ router.post(
 	"/deleteMessage",
 	authorization,
 	wrapAsync(messageController.deleteMessage)
+);
+router.post(
+	"/markSeen",
+	authorization,
+	wrapAsync(messageController.markMessageSeen)
 );
 router.get("/:chatId", authorization, wrapAsync(messageController.allMessage));
 

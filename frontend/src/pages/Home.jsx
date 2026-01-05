@@ -111,6 +111,34 @@ const Home = () => {
 		};
 	});
 
+	// socket messages seen
+	useEffect(() => {
+		const messagesSeenHandler = ({ messageIds, userId }) => {
+			// Refresh messages to get updated seenBy data
+			if (selectedChat?._id) {
+				const token = localStorage.getItem("token");
+				const backendUrl = import.meta.env.VITE_APP_API_URL || "https://chatapp-fjyj.onrender.com";
+				
+				fetch(`${backendUrl}/api/message/${selectedChat._id}`, {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				})
+				.then(res => res.json())
+				.then(json => {
+					if (json?.data) {
+						dispatch(addAllMessages(json.data));
+					}
+				})
+				.catch(err => console.error("Refresh messages error:", err));
+			}
+		};
+		socket.on("messages seen", messagesSeenHandler);
+		return () => {
+			socket.off("messages seen", messagesSeenHandler);
+		};
+	});
+
 	return (
 		<div className="flex w-full border-slate-500 border rounded-sm shadow-md shadow-black relative">
 			<div

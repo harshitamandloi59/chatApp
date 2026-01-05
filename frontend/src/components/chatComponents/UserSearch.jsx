@@ -42,7 +42,6 @@ const UserSearch = () => {
           dispatch(setChatLoading(false));
         })
         .catch((err) => {
-          console.log(err);
           dispatch(setChatLoading(false));
         });
 		};
@@ -88,7 +87,6 @@ const UserSearch = () => {
         dispatch(setUserSearchBox());
       })
       .catch((err) => {
-        console.log(err);
         toast.error(err.message);
         dispatch(setLoading(false));
       });

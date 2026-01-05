@@ -42,7 +42,6 @@ const MemberAdd = ({ setMemberAddBox }) => {
 					dispatch(setChatLoading(false));
 				})
 				.catch((err) => {
-					console.log(err);
 					dispatch(setChatLoading(false));
 				});
 		};
@@ -102,7 +101,6 @@ const MemberAdd = ({ setMemberAddBox }) => {
 				setMemberAddBox(false);
 			})
 			.catch((err) => {
-				console.log(err);
 				toast.error(err.message);
 				dispatch(setLoading(false));
 			});

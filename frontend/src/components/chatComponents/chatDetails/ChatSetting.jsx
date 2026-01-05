@@ -44,9 +44,6 @@ const ChatSetting = () => {
 
 	//  handle Clear Chat Call
 	const handleClearChatCall = () => {
-		console.log("🟢 CLEAR CHAT CALLED");
-		console.log("SELECTED CHAT =", selectedChat);
-		console.log("ENV VITE_APP_API_URL =", import.meta.env.VITE_APP_API_URL);
 		
 		dispatch(setLoading(true));
 		setConfirm("");
@@ -55,8 +52,6 @@ const ChatSetting = () => {
 		const backendUrl = import.meta.env.VITE_APP_API_URL || API_BASE_URL;
 		const url = `${backendUrl}/api/message/clearChat/${selectedChat?._id}`;
 		
-		console.log("BACKEND URL =", backendUrl);
-		console.log("CLEAR CHAT URL =", url);
 		
 		fetch(url, {
 			method: "DELETE",
@@ -66,11 +61,9 @@ const ChatSetting = () => {
 			},
 		})
 			.then((res) => {
-				console.log("CLEAR CHAT RESPONSE STATUS =", res.status);
 				return res.json();
 			})
 			.then((json) => {
-				console.log("CLEAR CHAT RESPONSE =", json);
 				dispatch(setLoading(false));
 				
 				if (json?.message === "success") {
@@ -84,15 +77,12 @@ const ChatSetting = () => {
 				}
 			})
 			.catch((err) => {
-				console.error("CLEAR CHAT ERROR =", err);
 				dispatch(setLoading(false));
 				toast.error("Failed to clear chat");
 			});
 	};
 	// handle Delete Chat Call
 	const handleDeleteChatCall = () => {
-		console.log("🟢 DELETE CHAT CALLED");
-		console.log("SELECTED CHAT =", selectedChat);
 		
 		dispatch(setLoading(true));
 		setConfirm("");
@@ -102,8 +92,6 @@ const ChatSetting = () => {
 		// Always use deleteGroup endpoint (works for both individual and group chats)
 		const url = `${backendUrl}/api/chat/deleteGroup/${selectedChat?._id}`;
 		
-		console.log("BACKEND URL =", backendUrl);
-		console.log("DELETE CHAT URL =", url);
 		
 		fetch(url, {
 			method: "DELETE",
@@ -113,11 +101,9 @@ const ChatSetting = () => {
 			},
 		})
 			.then((res) => {
-				console.log("DELETE CHAT RESPONSE STATUS =", res.status);
 				return res.json();
 			})
 			.then((json) => {
-				console.log("DELETE CHAT RESPONSE =", json);
 				dispatch(setLoading(false));
 				
 				if (json?.message === "success") {
@@ -134,7 +120,6 @@ const ChatSetting = () => {
 				}
 			})
 			.catch((err) => {
-				console.error("DELETE CHAT ERROR =", err);
 				dispatch(setLoading(false));
 				toast.error("Failed to delete chat");
 			});
