@@ -1,4 +1,5 @@
 import GroupLogo from "../assets/group.png";
+import { getImageUrl } from "./imageUrl";
 
 const getChatName = (chat, authUserId) => {
 	const chatName =
@@ -13,16 +14,12 @@ const getChatName = (chat, authUserId) => {
 export const getChatImage = (chat, authUserId) => {
 	// For group chats, return group image if available, otherwise group logo
 	if (chat?.chatName !== "Messenger") {
-		return chat?.groupImage
-      ? `${import.meta.env.VITE_APP_API_URL}${chat.groupImage}`
-      : GroupLogo;
+		return chat?.groupImage ? getImageUrl(chat.groupImage) : GroupLogo;
 	}
 	
-	// For individual chats, return the other user's image with backend URL
+	// For individual chats, return the other user's image
 	const otherUser = authUserId == chat.users[0]._id ? chat.users[1] : chat.users[0];
-	return otherUser.image
-    ? `${import.meta.env.VITE_APP_API_URL}${otherUser.image}`
-    : null;
+	return getImageUrl(otherUser.image);
 };
 
 export const getChatUserName = (chat, authUserId) => {
