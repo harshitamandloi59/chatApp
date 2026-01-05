@@ -1,6 +1,7 @@
 // Utility function to handle image URLs properly
 export const getImageUrl = (imagePath) => {
-  if (!imagePath) return null;
+  // Handle null, undefined, empty string, or whitespace-only strings
+  if (!imagePath || imagePath.trim() === '') return null;
   
   // If it's already a complete URL (starts with http:// or https://), return as is
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
