@@ -7,7 +7,6 @@ import { FaImage, FaFilePdf, FaFile } from "react-icons/fa";
 import { BsThreeDotsVertical, BsCheck2All } from "react-icons/bs";
 import { IoCheckmarkCircleOutline } from "react-icons/io5";
 import { VscError } from "react-icons/vsc";
-import Avatar from "../common/Avatar";
 import { toast } from "react-toastify";
 import { removeMessage } from "../../redux/slices/messageSlice";
 import socket from "../../socket/socket";
@@ -212,24 +211,7 @@ const AllMessages = ({ allMessage }) => {
                           onMouseEnter={() => setHoveredMessage(message._id)}
                           onMouseLeave={() => setHoveredMessage(null)}
                         >
-                          {message?.chat?.isGroupChat &&
-                            message?.sender?._id !== adminId &&
-                            (allMessage[idx + 1]?.sender?._id !==
-                            message?.sender?._id ? (
-                              <Avatar
-                                src={
-                                  message?.sender?.image
-                                    ? `${import.meta.env.VITE_APP_API_URL}${
-                                        message?.sender?.image
-                                      }`
-                                    : null
-                                }
-                                name={`${message?.sender?.firstName} ${message?.sender?.lastName}`}
-                                size="w-9 h-9"
-                              />
-                            ) : (
-                              <div className="h-9 w-9 rounded-full"></div>
-                            ))}
+                          {/* Removed Avatar/DP from messages */}
 
                           {/* Delete button for sender's own messages */}
                           {message?.sender?._id === adminId && hoveredMessage === message._id && (
