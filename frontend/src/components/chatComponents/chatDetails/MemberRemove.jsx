@@ -9,6 +9,7 @@ import { VscError } from "react-icons/vsc";
 import { CiCircleInfo } from "react-icons/ci";
 import { toast } from "react-toastify";
 import Avatar from "../../common/Avatar";
+import { getImageUrl } from "../../../utils/imageUrl";
 // import { addSelectedChat } from "../../redux/slices/myChatSlice";
 import { addSelectedChat } from "../../../redux/slices/myChatSlice";
 // import { setLoading } from "../../redux/slices/conditionSlice";
@@ -78,7 +79,7 @@ const MemberRemove = ({ setMemberAddBox }) => {
 							className="w-full h-12 border-slate-500 border rounded-lg flex justify-start items-center p-2 font-semibold gap-2 transition-all cursor-pointer text-white"
 						>
 							<Avatar
-								src={user?.image ? `${import.meta.env.VITE_APP_API_URL}${user?.image}` : null}
+								src={getImageUrl(user?.image)}
 								name={`${user?.firstName} ${user?.lastName}`}
 								size="w-10 h-10"
 							/>

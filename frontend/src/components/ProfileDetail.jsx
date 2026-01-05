@@ -6,6 +6,7 @@ import { setProfileDetail } from "../redux/slices/conditionSlice";
 import { addAuth } from "../redux/slices/authSlice";
 import { toast } from "react-toastify";
 import Avatar from "./common/Avatar";
+import { getImageUrl } from "../utils/imageUrl";
 
 const ProfileDetail = () => {
 	const dispatch = useDispatch();
@@ -168,9 +169,7 @@ const ProfileDetail = () => {
                 src={
                   selectedImage
                     ? URL.createObjectURL(selectedImage)
-                    : user.image
-                    ? `${import.meta.env.VITE_APP_API_URL}${user.image}`
-                    : null
+                    : getImageUrl(user.image)
                 }
                 name={`${user.firstName} ${user.lastName}`}
                 size="w-20 h-20"

@@ -18,6 +18,7 @@ import {
 import { IoLogOutOutline } from "react-icons/io5";
 import { PiUserCircleLight } from "react-icons/pi";
 import Avatar from "./common/Avatar";
+import { getImageUrl } from "../utils/imageUrl";
 
 const Header = () => {
 	const user = useSelector((store) => store.auth);
@@ -156,11 +157,7 @@ const Header = () => {
             className="flex flex-nowrap transition-all items-center ml-3  border border-slate-400 rounded-full bg-gradient-to-tr to-slate-800 text-black via-white  from-slate-800 hover:bg-gradient-to-br shadow-sm  cursor-pointer"
           >
             <Avatar
-              src={
-                user.image
-                  ? `${import.meta.env.VITE_APP_API_URL}${user.image}`
-                  : null
-              }
+              src={getImageUrl(user.image)}
               name={`${user.firstName} ${user.lastName}`}
               size="w-10 h-10"
             />

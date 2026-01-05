@@ -12,6 +12,7 @@ import { addSelectedChat } from "../../redux/slices/myChatSlice";
 import { SimpleDateAndTime } from "../../utils/formateDateTime";
 import socket from "../../socket/socket";
 import Avatar from "../common/Avatar";
+import { getImageUrl } from "../../utils/imageUrl";
 
 const UserSearch = () => {
 	const dispatch = useDispatch();
@@ -128,11 +129,7 @@ const UserSearch = () => {
                   onClick={() => handleCreateChat(user._id)}
                 >
                   <Avatar
-                    src={
-                      user?.image
-                        ? `${import.meta.env.VITE_APP_API_URL}${user?.image}`
-                        : null
-                    }
+                    src={getImageUrl(user?.image)}
                     name={`${user?.firstName} ${user?.lastName}`}
                     size="w-12 h-12"
                   />
