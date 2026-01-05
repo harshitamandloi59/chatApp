@@ -28,7 +28,7 @@ const MemberAdd = ({ setMemberAddBox }) => {
 		const getAllUsers = () => {
 			dispatch(setChatLoading(true));
 			const token = localStorage.getItem("token");
-			fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/users`, {
+			fetch(`${import.meta.env.VITE_APP_API_URL}/api/user/users`, {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
@@ -81,7 +81,7 @@ const MemberAdd = ({ setMemberAddBox }) => {
 	const handleAddUserCall = () => {
 		dispatch(setLoading(true));
 		const token = localStorage.getItem("token");
-		fetch(`${import.meta.env.VITE_BACKEND_URL}/api/chat/groupadd`, {
+		fetch(`${import.meta.env.VITE_APP_API_URL}/api/chat/groupadd`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -151,7 +151,7 @@ const MemberAdd = ({ setMemberAddBox }) => {
 									className="w-full h-12 border-slate-500 border rounded-lg flex justify-start items-center p-2 font-semibold gap-2 hover:bg-black/50 transition-all cursor-pointer text-white"
 								>
 									<Avatar
-										src={user?.image ? `${import.meta.env.VITE_BACKEND_URL}${user?.image}` : null}
+										src={user?.image ? `${import.meta.env.VITE_APP_API_URL}${user?.image}` : null}
 										name={`${user?.firstName} ${user?.lastName}`}
 										size="w-10 h-10"
 									/>

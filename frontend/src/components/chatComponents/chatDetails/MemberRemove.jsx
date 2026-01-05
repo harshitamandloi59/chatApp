@@ -29,7 +29,7 @@ const MemberRemove = ({ setMemberAddBox }) => {
 	const handleRemoveUserCall = () => {
 		dispatch(setLoading(true));
 		const token = localStorage.getItem("token");
-		fetch(`${import.meta.env.VITE_BACKEND_URL}/api/chat/groupremove`, {
+		fetch(`${import.meta.env.VITE_APP_API_URL}/api/chat/groupremove`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -79,7 +79,7 @@ const MemberRemove = ({ setMemberAddBox }) => {
 							className="w-full h-12 border-slate-500 border rounded-lg flex justify-start items-center p-2 font-semibold gap-2 transition-all cursor-pointer text-white"
 						>
 							<Avatar
-								src={user?.image ? `${import.meta.env.VITE_BACKEND_URL}${user?.image}` : null}
+								src={user?.image ? `${import.meta.env.VITE_APP_API_URL}${user?.image}` : null}
 								name={`${user?.firstName} ${user?.lastName}`}
 								size="w-10 h-10"
 							/>

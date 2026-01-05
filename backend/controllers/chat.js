@@ -100,10 +100,50 @@ const createGroup = async (req, res) => {
 	res.status(200).json({ data: groups });
 };
 const deleteGroup = async (req, res) => {
-	const chatId = req.params.chatId;
-	await Message.deleteMany({ chat: chatId });
-	await Chat.deleteOne({ _id: chatId });
-	return res.status(200).json({ message: "success" });
+	console.log("🟢 DELETE GROUP HIT");
+	console.log("CHAT ID =", req.params.chatId);
+	console.log("USER ID =", req.user._id);
+	
+	try {
+		const chatId = req.params.chatId;
+		
+		if (!chatId) {
+			return res.status(400).json({ message: "Chat ID is required" });
+		}
+		
+		// Check if chat exists and user has permission
+		const chat = await Chat.findById(chatId);
+		if (!chat) {
+			return res.status(404).json({ message: "Chat not found" });
+		}
+		
+		// For group chats, check if user is admin
+		if (chat.isGroupChat && chat.groupAdmin.toString() !== req.user._id.toString()) {
+			return res.status(403).json({ message: "Only group admin can delete group" });
+		}
+		
+		// For individual chats, check if user is part of the chat
+		if (!chat.isGroupChat && !chat.users.includes(req.user._id)) {
+			return res.status(403).json({ message: "You are not part of this chat" });
+		}
+		
+		// Delete all messages first
+		const messageResult = await Message.deleteMany({ chat: chatId });
+		console.log("DELETED MESSAGES =", messageResult.deletedCount);
+		
+		// Delete the chat
+		const chatResult = await Chat.deleteOne({ _id: chatId });
+		console.log("DELETED CHAT =", chatResult.deletedCount);
+		
+		return res.status(200).json({ 
+			message: "success",
+			deletedMessages: messageResult.deletedCount,
+			deletedChat: chatResult.deletedCount
+		});
+	} catch (error) {
+		console.error("DELETE GROUP ERROR =", error);
+		return res.status(500).json({ message: "Failed to delete chat" });
+	}
 };
 const renameGroup = async (req, res) => {
 	const { name, chatId } = req.body;

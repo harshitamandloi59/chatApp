@@ -12,6 +12,7 @@ import { addAllMessages } from "../../../redux/slices/messageSlice";
 // import { deleteSelectedChat } from "../../redux/slices/myChatSlice";
 import { deleteSelectedChat } from "../../../redux/slices/myChatSlice";
 import socket from "../../../socket/socket";
+import { API_BASE_URL } from "../../../config/api";
 
 const ChatSetting = () => {
 	const dispatch = useDispatch();
@@ -43,72 +44,97 @@ const ChatSetting = () => {
 
 	//  handle Clear Chat Call
 	const handleClearChatCall = () => {
+		console.log("🟢 CLEAR CHAT CALLED");
+		console.log("SELECTED CHAT =", selectedChat);
+		console.log("ENV VITE_APP_API_URL =", import.meta.env.VITE_APP_API_URL);
+		
 		dispatch(setLoading(true));
+		setConfirm("");
+		
 		const token = localStorage.getItem("token");
-		fetch(
-			`${import.meta.env.VITE_BACKEND_URL}/api/message/clearChat/${
-				selectedChat?._id
-			}`,
-			{
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
-			}
-		)
-			.then((res) => res.json())
+		const backendUrl = import.meta.env.VITE_APP_API_URL || API_BASE_URL;
+		const url = `${backendUrl}/api/message/clearChat/${selectedChat?._id}`;
+		
+		console.log("BACKEND URL =", backendUrl);
+		console.log("CLEAR CHAT URL =", url);
+		
+		fetch(url, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${token}`,
+			},
+		})
+			.then((res) => {
+				console.log("CLEAR CHAT RESPONSE STATUS =", res.status);
+				return res.json();
+			})
 			.then((json) => {
-				setConfirm("");
+				console.log("CLEAR CHAT RESPONSE =", json);
 				dispatch(setLoading(false));
+				
 				if (json?.message === "success") {
 					dispatch(addAllMessages([]));
 					socket.emit("clear chat", selectedChat._id);
 					toast.success("Cleared all messages");
+				} else if (json?.error === "Invaild Route") {
+					toast.error("Clear chat feature not available on live server. Please redeploy backend.");
 				} else {
-					toast.error("Failed to clear chat");
+					toast.error(json?.message || "Failed to clear chat");
 				}
 			})
 			.catch((err) => {
-				console.log(err);
-				setConfirm("");
+				console.error("CLEAR CHAT ERROR =", err);
 				dispatch(setLoading(false));
 				toast.error("Failed to clear chat");
 			});
 	};
 	// handle Delete Chat Call
 	const handleDeleteChatCall = () => {
+		console.log("🟢 DELETE CHAT CALLED");
+		console.log("SELECTED CHAT =", selectedChat);
+		
 		dispatch(setLoading(true));
+		setConfirm("");
+		
 		const token = localStorage.getItem("token");
-		fetch(
-			`${import.meta.env.VITE_BACKEND_URL}/api/chat/deleteGroup/${
-				selectedChat?._id
-			}`,
-			{
-				method: "DELETE",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
-			}
-		)
-			.then((res) => res.json())
+		const backendUrl = import.meta.env.VITE_APP_API_URL || API_BASE_URL;
+		// Always use deleteGroup endpoint (works for both individual and group chats)
+		const url = `${backendUrl}/api/chat/deleteGroup/${selectedChat?._id}`;
+		
+		console.log("BACKEND URL =", backendUrl);
+		console.log("DELETE CHAT URL =", url);
+		
+		fetch(url, {
+			method: "DELETE",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${token}`,
+			},
+		})
+			.then((res) => {
+				console.log("DELETE CHAT RESPONSE STATUS =", res.status);
+				return res.json();
+			})
 			.then((json) => {
+				console.log("DELETE CHAT RESPONSE =", json);
 				dispatch(setLoading(false));
+				
 				if (json?.message === "success") {
 					let chat = selectedChat;
 					dispatch(setChatDetailsBox(false));
 					dispatch(addAllMessages([]));
 					dispatch(deleteSelectedChat(chat._id));
 					socket.emit("delete chat", chat, authUserId);
-
 					toast.success("Chat deleted successfully");
+				} else if (json?.error === "Invaild Route") {
+					toast.error("Delete chat feature not available on live server. Please redeploy backend.");
 				} else {
-					toast.error("Failed to delete chat");
+					toast.error(json?.message || "Failed to delete chat");
 				}
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error("DELETE CHAT ERROR =", err);
 				dispatch(setLoading(false));
 				toast.error("Failed to delete chat");
 			});

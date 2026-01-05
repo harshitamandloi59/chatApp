@@ -97,9 +97,27 @@ const allMessage = async (req, res) => {
 };
 
 const clearChat = async (req, res) => {
-  const chatId = req.params.chatId;
-  await Message.deleteMany({ chat: chatId });
-  return res.status(200).json({ message: "success" });
+  console.log("🟢 CLEAR CHAT HIT");
+  console.log("CHAT ID =", req.params.chatId);
+  
+  try {
+    const chatId = req.params.chatId;
+    
+    if (!chatId) {
+      return res.status(400).json({ message: "Chat ID is required" });
+    }
+    
+    const result = await Message.deleteMany({ chat: chatId });
+    console.log("DELETED MESSAGES =", result.deletedCount);
+    
+    return res.status(200).json({ 
+      message: "success",
+      deletedCount: result.deletedCount 
+    });
+  } catch (error) {
+    console.error("CLEAR CHAT ERROR =", error);
+    return res.status(500).json({ message: "Failed to clear chat" });
+  }
 };
 
 module.exports = { createMessage, allMessage, clearChat };

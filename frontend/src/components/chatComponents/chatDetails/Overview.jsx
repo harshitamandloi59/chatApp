@@ -36,7 +36,7 @@ const Overview = () => {
 		}
 		dispatch(setLoading(true));
 		const token = localStorage.getItem("token");
-		fetch(`${import.meta.env.VITE_BACKEND_URL}/api/chat/rename`, {
+		fetch(`${import.meta.env.VITE_APP_API_URL}/api/chat/rename`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -97,7 +97,7 @@ const Overview = () => {
 		formData.append("groupImage", imageFile);
 
 		try {
-			const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/chat/updateGroupImage`, {
+			const response = await fetch(`${import.meta.env.VITE_APP_API_URL}/api/chat/updateGroupImage`, {
 				method: "POST",
 				headers: {
 					Authorization: `Bearer ${token}`,
