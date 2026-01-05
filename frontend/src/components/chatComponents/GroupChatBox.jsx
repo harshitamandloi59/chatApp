@@ -73,7 +73,9 @@ const GroupChatBox = () => {
 	}, [inputUserName]);
 
 	useEffect(() => {
-		handleScrollEnd(groupUser.current);
+		if (groupUser.current) {
+			handleScrollEnd(groupUser.current);
+		}
 	}, [isGroupUsers]);
 
 	const addGroupUser = (user) => {

@@ -106,7 +106,7 @@ const AllMessages = ({ allMessage }) => {
     const [scrollShow, setScrollShow] = useState(true);
     // Handle Chat Box Scroll Down
     const handleScrollDownChat = () => {
-        if (chatBox.current) {
+        if (chatBox.current && typeof chatBox.current.scrollTo === 'function') {
             chatBox.current.scrollTo({
                 top: chatBox.current.scrollHeight,
                 // behavior: "auto",
@@ -151,10 +151,12 @@ const AllMessages = ({ allMessage }) => {
     // Scroll Button Hidden
     useEffect(() => {
         handleScrollDownChat();
-        if (chatBox.current.scrollHeight == chatBox.current.clientHeight) {
+        if (chatBox.current && chatBox.current.scrollHeight == chatBox.current.clientHeight) {
             setScrollShow(false);
         }
         const handleScroll = () => {
+            if (!chatBox.current) return;
+            
             const currentScrollPos = chatBox.current.scrollTop;
             if (
                 currentScrollPos + chatBox.current.clientHeight <
@@ -166,10 +168,12 @@ const AllMessages = ({ allMessage }) => {
             }
         };
         const chatBoxCurrent = chatBox.current;
-        chatBoxCurrent.addEventListener("scroll", handleScroll);
-        return () => {
-            chatBoxCurrent.removeEventListener("scroll", handleScroll);
-        };
+        if (chatBoxCurrent) {
+            chatBoxCurrent.addEventListener("scroll", handleScroll);
+            return () => {
+                chatBoxCurrent.removeEventListener("scroll", handleScroll);
+            };
+        }
     }, [allMessage, isTyping]);
 
     return (
