@@ -20,14 +20,8 @@ const ChatSetting = () => {
 	const selectedChat = useSelector((store) => store?.myChat?.selectedChat);
 	const [isConfirm, setConfirm] = useState("");
 	const handleClearChat = () => {
-		if (
-			authUserId === selectedChat?.groupAdmin?._id ||
-			!selectedChat?.isGroupChat
-		) {
-			setConfirm("clear-chat");
-		} else {
-			toast.warn("You're not admin");
-		}
+		// Any user can clear their own chat view (both individual and group)
+		setConfirm("clear-chat");
 	};
 	const handleDeleteGroup = () => {
 		if (authUserId === selectedChat?.groupAdmin?._id) {
@@ -138,11 +132,7 @@ const ChatSetting = () => {
 				<h1>Clear Chat</h1>
 				<CiCircleInfo
 					fontSize={15}
-					title={
-						selectedChat?.isGroupChat
-							? "Admin access only"
-							: "Clear Chat"
-					}
+					title="Clear Chat (Personal Action)"
 					className="cursor-pointer"
 				/>
 			</div>
