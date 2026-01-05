@@ -68,7 +68,8 @@ const ChatSetting = () => {
 				
 				if (json?.message === "success") {
 					dispatch(addAllMessages([]));
-					socket.emit("clear chat", selectedChat._id);
+					// Don't emit socket - clear chat is personal action
+					// socket.emit("clear chat", selectedChat._id);
 					toast.success("Cleared all messages");
 				} else if (json?.error === "Invaild Route") {
 					toast.error("Clear chat feature not available on live server. Please redeploy backend.");

@@ -57,19 +57,20 @@ const Home = () => {
 		};
 	});
 
-	// socket clear chat messages
-	useEffect(() => {
-		const clearChatHandler = (chatId) => {
-			if (chatId === selectedChat?._id) {
-				dispatch(addAllMessages([]));
-				toast.success("Cleared all messages");
-			}
-		};
-		socket.on("clear chat", clearChatHandler);
-		return () => {
-			socket.off("clear chat", clearChatHandler);
-		};
-	});
+	// socket clear chat messages - REMOVED (clear chat is personal action)
+	// Clear chat should only affect the user who performed the action
+	// useEffect(() => {
+	// 	const clearChatHandler = (chatId) => {
+	// 		if (chatId === selectedChat?._id) {
+	// 			dispatch(addAllMessages([]));
+	// 			toast.success("Cleared all messages");
+	// 		}
+	// 	};
+	// 	socket.on("clear chat", clearChatHandler);
+	// 	return () => {
+	// 		socket.off("clear chat", clearChatHandler);
+	// 	};
+	// });
 	// socket delete chat messages
 	useEffect(() => {
 		const deleteChatHandler = (chatId) => {

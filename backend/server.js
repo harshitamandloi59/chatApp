@@ -123,7 +123,9 @@ io.on("connection", (socket) => {
 
 	// Clear, Delete and Create chat handlers
 	const clearChatHandler = (chatId) => {
-		socket.in(chatId).emit("clear chat", chatId);
+		// Don't emit to other users - clear chat is personal action
+		// Only the user who cleared will see it cleared
+		console.log("Clear chat - personal action, no broadcast needed");
 	};
 	const deleteChatHandler = (chat, authUserId) => {
 		chat.users.forEach((user) => {

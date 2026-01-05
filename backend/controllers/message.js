@@ -85,8 +85,12 @@ const createMessage = async (req, res) => {
 
 const allMessage = async (req, res) => {
   const chatId = req.params.chatId;
+  const userId = req.user._id;
 
-  const messages = await Message.find({ chat: chatId })
+  const messages = await Message.find({ 
+    chat: chatId,
+    hiddenFor: { $ne: userId } // Exclude messages hidden for current user
+  })
     .populate("sender", "-password")
     .populate("chat")
     .populate("seenBy.user", "firstName lastName");
@@ -95,6 +99,9 @@ const allMessage = async (req, res) => {
 };
 
 const clearChat = async (req, res) => {
+  console.log("🟢 CLEAR CHAT HIT");
+  console.log("CHAT ID =", req.params.chatId);
+  console.log("USER ID =", req.user._id);
   
   try {
     const chatId = req.params.chatId;
@@ -103,13 +110,25 @@ const clearChat = async (req, res) => {
       return res.status(400).json({ message: "Chat ID is required" });
     }
     
-    const result = await Message.deleteMany({ chat: chatId });
+    // Hide messages for current user instead of deleting them
+    const result = await Message.updateMany(
+      { 
+        chat: chatId,
+        hiddenFor: { $ne: req.user._id } // Only update if not already hidden for this user
+      },
+      { 
+        $push: { hiddenFor: req.user._id }
+      }
+    );
+    
+    console.log("MESSAGES HIDDEN FOR USER =", result.modifiedCount);
     
     return res.status(200).json({ 
       message: "success",
-      deletedCount: result.deletedCount 
+      hiddenCount: result.modifiedCount
     });
   } catch (error) {
+    console.error("CLEAR CHAT ERROR =", error);
     return res.status(500).json({ message: "Failed to clear chat" });
   }
 };
