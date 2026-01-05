@@ -7,6 +7,8 @@ const Avatar = ({
   className = "",
   onClick = null 
 }) => {
+  console.log("🎭 Avatar component - src:", src, "name:", name, "src type:", typeof src);
+  
   const getInitials = (fullName) => {
     if (!fullName) return "U";
     const names = fullName.trim().split(" ");
@@ -41,7 +43,7 @@ const Avatar = ({
       onClick={onClick}
     >
       {/* Image */}
-      {src && (
+      {src && src !== 'null' && src !== 'undefined' && (
         <img
           src={src}
           alt={name}
@@ -58,7 +60,7 @@ const Avatar = ({
           size.includes('w-12') ? 'text-base' : 
           'text-sm'
         }`}
-        style={{ display: src ? 'none' : 'flex' }}
+        style={{ display: (src && src !== 'null' && src !== 'undefined') ? 'none' : 'flex' }}
       >
         {getInitials(name)}
       </div>
