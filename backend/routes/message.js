@@ -14,11 +14,16 @@ router.post(
   },
   wrapAsync(messageController.createMessage)
 );
-router.get("/:chatId", authorization, wrapAsync(messageController.allMessage));
-router.get(
+router.delete(
 	"/clearChat/:chatId",
 	authorization,
 	wrapAsync(messageController.clearChat)
 );
+router.post(
+	"/deleteMessage",
+	authorization,
+	wrapAsync(messageController.deleteMessage)
+);
+router.get("/:chatId", authorization, wrapAsync(messageController.allMessage));
 
 module.exports = router;

@@ -144,6 +144,9 @@ io.on("connection", (socket) => {
 			socket.in(user._id).emit("chat created", chat);
 		});
 	};
+	const messageDeletedHandler = ({ messageId, chatId }) => {
+		socket.in(chatId).emit("message deleted", { messageId, chatId });
+	};
 
 	socket.on("setup", setupHandler);
 	socket.on("new message", newMessageHandler);
@@ -153,6 +156,7 @@ io.on("connection", (socket) => {
 	socket.on("clear chat", clearChatHandler);
 	socket.on("delete chat", deleteChatHandler);
 	socket.on("chat created", chatCreateChatHandler);
+	socket.on("message deleted", messageDeletedHandler);
 
 	socket.on("disconnect", () => {
 		console.log("User disconnected:", socket.id);
@@ -164,5 +168,6 @@ io.on("connection", (socket) => {
 		socket.off("clear chat", clearChatHandler);
 		socket.off("delete chat", deleteChatHandler);
 		socket.off("chat created", chatCreateChatHandler);
+		socket.off("message deleted", messageDeletedHandler);
 	});
 });

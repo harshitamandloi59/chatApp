@@ -120,4 +120,41 @@ const clearChat = async (req, res) => {
   }
 };
 
-module.exports = { createMessage, allMessage, clearChat };
+const deleteMessage = async (req, res) => {
+  console.log("🟢 DELETE MESSAGE HIT");
+  console.log("REQUEST BODY =", req.body);
+  console.log("USER ID =", req.user._id);
+  
+  try {
+    const { messageId } = req.body;
+    
+    if (!messageId) {
+      return res.status(400).json({ message: "Message ID is required" });
+    }
+    
+    // Find the message and check if user is the sender
+    const message = await Message.findById(messageId);
+    if (!message) {
+      return res.status(404).json({ message: "Message not found" });
+    }
+    
+    // Check if user is the sender of the message
+    if (message.sender.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "You can only delete your own messages" });
+    }
+    
+    // Delete the message
+    await Message.findByIdAndDelete(messageId);
+    console.log("MESSAGE DELETED =", messageId);
+    
+    return res.status(200).json({ 
+      message: "success",
+      deletedMessageId: messageId
+    });
+  } catch (error) {
+    console.error("DELETE MESSAGE ERROR =", error);
+    return res.status(500).json({ message: "Failed to delete message" });
+  }
+};
+
+module.exports = { createMessage, allMessage, clearChat, deleteMessage };

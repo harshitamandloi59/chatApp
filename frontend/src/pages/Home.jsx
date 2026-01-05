@@ -11,7 +11,7 @@ import {
 	setUserSearchBox,
 } from "../redux/slices/conditionSlice";
 import socket from "../socket/socket";
-import { addAllMessages, addNewMessage } from "../redux/slices/messageSlice";
+import { addAllMessages, addNewMessage, removeMessage } from "../redux/slices/messageSlice";
 import {
 	addNewChat,
 	addNewMessageRecieved,
@@ -95,6 +95,19 @@ const Home = () => {
 		socket.on("chat created", chatCreatedHandler);
 		return () => {
 			socket.off("chat created", chatCreatedHandler);
+		};
+	});
+
+	// socket message deleted
+	useEffect(() => {
+		const messageDeletedHandler = ({ messageId, chatId }) => {
+			if (chatId === selectedChat?._id) {
+				dispatch(removeMessage(messageId));
+			}
+		};
+		socket.on("message deleted", messageDeletedHandler);
+		return () => {
+			socket.off("message deleted", messageDeletedHandler);
 		};
 	});
 

@@ -1,10 +1,16 @@
-import React, { Fragment, useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { Fragment, useEffect, useRef, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { VscCheckAll } from "react-icons/vsc";
 import { CgChevronDoubleDown } from "react-icons/cg";
 import { HiDownload, HiEye } from "react-icons/hi";
 import { FaImage, FaFilePdf, FaFile } from "react-icons/fa";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import { IoCheckmarkCircleOutline } from "react-icons/io5";
+import { VscError } from "react-icons/vsc";
 import Avatar from "../common/Avatar";
+import { toast } from "react-toastify";
+import { removeMessage } from "../../redux/slices/messageSlice";
+import socket from "../../socket/socket";
 import {
     SimpleDateAndTime,
     SimpleDateMonthDay,
@@ -13,9 +19,18 @@ import {
 
 const AllMessages = ({ allMessage }) => {
     const chatBox = useRef();
+    const dispatch = useDispatch();
     const adminId = useSelector((store) => store.auth?._id);
+    const selectedChat = useSelector((store) => store?.myChat?.selectedChat);
     const isTyping = useSelector((store) => store?.condition?.isTyping);
     const [downloadedImages, setDownloadedImages] = useState(new Set());
+    const [hoveredMessage, setHoveredMessage] = useState(null);
+    const [deleteConfirm, setDeleteConfirm] = useState(null);
+
+    // Show delete confirmation
+    const showDeleteConfirmation = (messageId) => {
+        setDeleteConfirm(messageId);
+    };
 
     const [scrollShow, setScrollShow] = useState(true);
     // Handle Chat Box Scroll Down
@@ -25,6 +40,44 @@ const AllMessages = ({ allMessage }) => {
                 top: chatBox.current.scrollHeight,
                 // behavior: "auto",
             });
+        }
+    };
+
+    // Delete individual message
+    const handleDeleteMessage = async (messageId) => {
+        console.log("🟢 DELETE MESSAGE CALLED", messageId);
+        
+        const token = localStorage.getItem("token");
+        const backendUrl = import.meta.env.VITE_APP_API_URL || "https://chatapp-fjyj.onrender.com";
+        
+        try {
+            // Try using the clear chat route with a modification to delete single message
+            const response = await fetch(`${backendUrl}/api/message/clearChat/${messageId}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const json = await response.json();
+            console.log("DELETE MESSAGE RESPONSE =", json);
+
+            if (json?.message === "success") {
+                // Remove message from local state
+                dispatch(removeMessage(messageId));
+                // Emit socket event to notify other users
+                socket.emit("message deleted", { messageId, chatId: selectedChat._id });
+                toast.success("Message deleted");
+            } else {
+                toast.error("Delete feature requires backend update. Please redeploy backend with new routes.");
+            }
+            
+            setDeleteConfirm(null);
+        } catch (error) {
+            console.error("DELETE MESSAGE ERROR =", error);
+            toast.error("Delete feature not available. Backend needs to be updated.");
+            setDeleteConfirm(null);
         }
     };
     // Scroll Button Hidden
@@ -84,6 +137,8 @@ const AllMessages = ({ allMessage }) => {
                               ? "flex-row-reverse text-white"
                               : "flex-row text-black"
                           }`}
+                          onMouseEnter={() => setHoveredMessage(message._id)}
+                          onMouseLeave={() => setHoveredMessage(null)}
                         >
                           {message?.chat?.isGroupChat &&
                             message?.sender?._id !== adminId &&
@@ -103,6 +158,17 @@ const AllMessages = ({ allMessage }) => {
                             ) : (
                               <div className="h-9 w-9 rounded-full"></div>
                             ))}
+
+                          {/* Delete button for sender's own messages */}
+                          {message?.sender?._id === adminId && hoveredMessage === message._id && (
+                            <button
+                              className="absolute top-1 right-1 z-10 w-6 h-6 bg-black/60 rounded-full flex items-center justify-center hover:bg-black/80 transition-colors"
+                              onClick={() => showDeleteConfirmation(message._id)}
+                              title="Delete message"
+                            >
+                              <BsThreeDotsVertical className="text-white text-xs" />
+                            </button>
+                          )}
 
                           {/* Check if message has file or text */}
                           {message?.file ? (
@@ -293,6 +359,17 @@ const AllMessages = ({ allMessage }) => {
                                   : "bg-gradient-to-tr to-slate-800 from-white rounded-e-lg rounded-es-2xl"
                               } py-1.5 px-2 min-w-10 text-start flex flex-col relative max-w-[85%]`}
                             >
+                              {/* Delete button for sender's own text messages */}
+                              {message?.sender?._id === adminId && hoveredMessage === message._id && (
+                                <button
+                                  className="absolute -top-2 -right-2 z-10 w-6 h-6 bg-black/60 rounded-full flex items-center justify-center hover:bg-black/80 transition-colors"
+                                  onClick={() => showDeleteConfirmation(message._id)}
+                                  title="Delete message"
+                                >
+                                  <BsThreeDotsVertical className="text-white text-xs" />
+                                </button>
+                              )}
+
                               {message?.chat?.isGroupChat &&
                                 message?.sender?._id !== adminId && (
                                   <span className="text-xs font-bold text-start text-green-900">
@@ -336,6 +413,32 @@ const AllMessages = ({ allMessage }) => {
                     </div>
                 )}
             </div>
+            
+            {/* Delete Confirmation Dialog */}
+            {deleteConfirm && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-slate-800 rounded-lg p-6 max-w-sm mx-4">
+                        <h3 className="text-white text-lg font-semibold mb-4">Delete Message</h3>
+                        <p className="text-gray-300 mb-6">Are you sure you want to delete this message? This action cannot be undone.</p>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => setDeleteConfirm(null)}
+                                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2"
+                            >
+                                <VscError fontSize={16} />
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => handleDeleteMessage(deleteConfirm)}
+                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+                            >
+                                <IoCheckmarkCircleOutline fontSize={16} />
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };

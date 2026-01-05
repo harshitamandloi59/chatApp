@@ -59,7 +59,7 @@ const ChatSetting = () => {
 		console.log("CLEAR CHAT URL =", url);
 		
 		fetch(url, {
-			method: "GET",
+			method: "DELETE",
 			headers: {
 				"Content-Type": "application/json",
 				Authorization: `Bearer ${token}`,
