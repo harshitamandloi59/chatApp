@@ -33,8 +33,12 @@ const Avatar = ({
   };
 
   const handleImageError = (e) => {
+    console.log("❌ Image failed to load:", e.target.src);
     e.target.style.display = 'none';
-    e.target.nextSibling.style.display = 'flex';
+    const fallbackDiv = e.target.parentNode.querySelector('.fallback-initials');
+    if (fallbackDiv) {
+      fallbackDiv.style.display = 'flex';
+    }
   };
 
   return (
@@ -54,7 +58,7 @@ const Avatar = ({
       
       {/* Fallback with initials */}
       <div 
-        className={`w-full h-full bg-gradient-to-br ${getGradientColor(name)} flex items-center justify-center text-white font-bold ${
+        className={`fallback-initials w-full h-full bg-gradient-to-br ${getGradientColor(name)} flex items-center justify-center text-white font-bold ${
           size.includes('w-20') ? 'text-xl' : 
           size.includes('w-16') ? 'text-lg' : 
           size.includes('w-12') ? 'text-base' : 

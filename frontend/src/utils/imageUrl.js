@@ -8,6 +8,12 @@ export const getImageUrl = (imagePath) => {
     return null;
   }
   
+  // Handle the specific problematic default avatar URL - treat as no image
+  if (imagePath.includes('icon-library.com') || imagePath.includes('anonymous-avatar-icon')) {
+    console.log("✅ Returning null for default/anonymous avatar URL");
+    return null;
+  }
+  
   // If it's already a complete URL (starts with http:// or https://), return as is
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
     console.log("✅ Returning external URL:", imagePath);
